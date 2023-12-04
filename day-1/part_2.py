@@ -27,7 +27,7 @@ zoneight234
 _USE_SAMPLE = False
 
 def _get_input_lines() -> list[str]:
-    if +_USE_SAMPLE:
+    if _USE_SAMPLE:
         return _SAMPLE.split()
     with open('input.txt') as f:
         return f.readlines()
