@@ -41,8 +41,8 @@ def get_input_lines(use_sample: bool) -> list[str]:
 
 def points_for_card(card_line: str) -> int:
     winning_nums_str, your_nums_str = card_line.split(':')[1].split('|')
-    winning_nums = set(num_str for num_str in winning_nums_str.split())
-    your_nums = set(num_str for num_str in your_nums_str.split())
+    winning_nums = set(winning_nums_str.split())
+    your_nums = set(your_nums_str.split())
     val = 0
     for your_num in your_nums:
         if your_num in winning_nums:

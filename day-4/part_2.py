@@ -28,8 +28,8 @@ from part_1 import get_input_lines
 
 def num_matches_for_card(card_line: str) -> int:
     winning_nums_str, your_nums_str = card_line.split(':')[1].split('|')
-    winning_nums = set(num_str for num_str in winning_nums_str.split())
-    your_nums = set(num_str for num_str in your_nums_str.split())
+    winning_nums = set(winning_nums_str.split())
+    your_nums = set(your_nums_str.split())
     return len(your_nums.intersection(winning_nums))
 
 assert num_matches_for_card('Card 1: 41 48 83 86 17 | 83 86  6 31 17  9 48 53') == 4
