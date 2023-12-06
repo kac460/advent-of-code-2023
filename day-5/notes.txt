@@ -1,0 +1,35 @@
+- 2 cases:
+ - Src in map -> dest = map[src]
+ - Src not in map -> dest = src 
+
+
+ Thinking backwards:
+ - The min location is either:
+   - The smallest location in the map mapped to by some humidity
+   - Or the min humidity, if it's smaller than the above
+The above reasoning can be extended for each map going backwards, i.e.,
+- Given src-to-dest map, the min dest is either: 
+  - The smallest dest in src-to-dest map mapped to by some src
+  - Or the min src, if it's smaller than the above 
+    - Problem: we don't know the min src? 
+        - Maybe we can compute it recursively? The min src of src-to-dest_i is the min dest of src-to-dest_(i-1)
+            - Base case is easy: just take the min seed
+    - Problem: The min dest isn't necessarily reachable from some seed...
+        - Can we compute extended versions of each map? I.e., define ALL ranges not just those explicitly in our input.
+        - 2 cases:
+            - we compute min soil as the min seed -> obviously reachable from some seed
+            - we compute min soil as the min explicated soil:
+                - If there's some seed that maps to this soil, then we're good
+                - If not, then the whole computation is useless!
+
+Rather than solving the dest of each seed, can we solve the dest of each seed range (defined as a continuous range of seeds x...y that maps to a continuous range of soil. or maybe a continuous range of locations)? 
+  - Could we do binary search to find the end of each seed range?
+  - Would it be binary search or would it be something that can be figured out with O(1) math (particularly in the first def of "seed range")
+  - Under 2nd def, we know the seed that corresponds to the lowest location will be the 1st seed of some seed range => greatly reduces search space => use this def 
+
+APPROACH: Compute the start of every seed range, where a "seed range" is defined as a continuous range of seeds s...t that map to a continuous range of locations l...m. 
+ - To compute seed ranges, given a start seed and range length (s, range_length) we will do a binary search (taking s as the initial lower bound and s+range_length as the initial upper bound) to find the the end of the seed range (which, given s maps to some location l, is the seed s+x right before the first seed s+x+1 that does not map l+x+1--i.e., the last seed s+x that maps to l+x).
+ - We repeat the above computation, taking s+x+1 as the new initial lower bound, until we find that the end of the seed range is the original upper bound s+range_length.
+ Take the smallest location mapped to by the start of a seed range as our final answer.
+
+ Ignoring the time it takes to compute our maps (which should take no longer than it did in part 1 which we saw took a very short amount of time), the above approach takes O(s*log(n)) where s is the number of seed ranges (we don't know this ahead of time) and n is the total number of seeds, which for our input is 1,687,205,618. Note log_2(1,687,205,618) = 31, so hopefully this approach should complete in a reasonable amount of time. 
