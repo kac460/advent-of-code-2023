@@ -138,7 +138,7 @@ _MAP_NAMES = [
 def get_input_lines(use_sample) -> list[str]:
     if use_sample:
         return _SAMPLE.splitlines()
-    with open('input.txt') as f:
+    with open('day-5/input.txt') as f:
         return [line.strip() for line in f.readlines()]
 
 
@@ -149,7 +149,6 @@ def source_to_destination_map(map_name: str, input_lines: list[str]) -> dict:
         if 'map' in line or not line.strip():  # start of next map / end of input
             break
         dest, src, range_length = (int(num_str) for num_str in line.split())
-        print(dest, src, range_length)
         src_to_dest_map[src] = DestObj(dest, range_length)
     return src_to_dest_map
 
@@ -184,24 +183,24 @@ def get_seeds(seed_line: str) -> list[int]:
     return [int(seed) for seed in seed_line.split(':')[1].split()]
 assert get_seeds('seeds: 79 14 55 13') == [79, 14, 55, 13]
 
-def locations(input_lines: list[str]) -> set[int]:
-    seeds = get_seeds(input_lines[0])
-    src_to_dest_maps = get_maps(input_lines)
+def get_locations(seeds: list[int], src_to_dest_maps: list[dict]) -> set[int]:
     locations = set()
     for seed in seeds:
         src = seed
         for src_to_dest_map in src_to_dest_maps:
             src = get_destination(src_to_dest_map, src)
         # at end, src is a location
-        print(f'Location for {seed} is {src}')
+        # print(f'Location for {seed} is {src}')
         locations.add(src)
     return locations
-l = locations(get_input_lines(use_sample=True))
-assert l == {35, 82, 43, 86}
+# l = locations(get_input_lines(use_sample=True))
+# assert l == {35, 82, 43, 86}
 
 def main() -> None:
     input_lines = get_input_lines(use_sample=False)
-    seed_locations = locations(input_lines)
+    seeds = get_seeds(input_lines[0])
+    seed_locations = get_locations(seeds, src_to_dest_maps=get_maps(input_lines))
     print(f'Final answer: {min(seed_locations)}')
 
-main()
+if __name__ == '__main__':
+    main()

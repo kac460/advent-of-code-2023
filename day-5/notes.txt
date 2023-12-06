@@ -33,3 +33,26 @@ APPROACH: Compute the start of every seed range, where a "seed range" is defined
  Take the smallest location mapped to by the start of a seed range as our final answer.
 
  Ignoring the time it takes to compute our maps (which should take no longer than it did in part 1 which we saw took a very short amount of time), the above approach takes O(s*log(n)) where s is the number of seed ranges (we don't know this ahead of time) and n is the total number of seeds, which for our input is 1,687,205,618. Note log_2(1,687,205,618) = 31, so hopefully this approach should complete in a reasonable amount of time. 
+
+PROBLEM: what if for an explicit seed range s...t, s maps to soil s (i.e. not in explicit mapping), t maps to soil t (i.e. not in explicit mapping) but there are explicit mappings for subranges s+i...s+i+j, s+k...s+k+l, (where all these seeds are < t) etc.. We would then assume t is the upper end of the seed range, but in fact the upper end of the seed range should be s+i-1.
+  - IDEA: Use the dest ranges of the seed-to-soil map to determine the seed ranges? But I think this has the same issue just further down the line...
+
+
+ Thinking backwards (again):
+ - The min location is either:
+   - The smallest location in the map mapped to by some humidity
+   - Or the min humidity, if it's smaller than the above
+The above reasoning can be extended for each map going backwards, i.e.,
+- Given src-to-dest map, the min dest is either: 
+  - The smallest dest in src-to-dest map mapped to by some src
+  - Or the min src, if it's smaller than the above 
+    - Problem: we don't know the min src? 
+        - Maybe we can compute it recursively? The min src of src-to-dest_i is the min dest of src-to-dest_(i-1)
+            - Base case is easy: just take the min seed
+    - Problem: The min dest isn't necessarily reachable from some seed...
+        - Can we compute extended versions of each map? I.e., define ALL ranges not just those explicitly in our input.
+        - 2 cases:
+            - we compute min soil as the min seed -> obviously reachable from some seed
+            - we compute min soil as the min explicated soil:
+                - If there's some seed that maps to this soil, then we're good
+                - If not, then the whole computation is useless!
