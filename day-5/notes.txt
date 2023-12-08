@@ -56,3 +56,12 @@ The above reasoning can be extended for each map going backwards, i.e.,
             - we compute min soil as the min explicated soil:
                 - If there's some seed that maps to this soil, then we're good
                 - If not, then the whole computation is useless!
+
+
+NEW APPROACH, using "seed range" idea but not using binary search anymore:
+Say x maps to y which is part of (y-j, y+k). Then we know upper bound of seed range cannot exceed x+j. Then for the next map, if y maps to z (part of z-a, z+b) we know upper bound cannot exceed x+b (new max if less than x+j). Etc.
+
+As per previous notes, we can restrict our search to only the first seed of each seed range.
+
+Question: what about when it doesn't map to an explicit range?
+Idea: pre compute all the ranges even those not explicated? Would need something creative to deal with "to infinity"...

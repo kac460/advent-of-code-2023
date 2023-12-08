@@ -125,7 +125,7 @@ humidity-to-location map:
 60 56 37
 56 93 4
 '''
-_MAP_NAMES = [
+MAP_NAMES = [
     'seed-to-soil',
     'soil-to-fertilizer',
     'fertilizer-to-water',
@@ -176,7 +176,7 @@ test_get_destination()
 def get_maps(input_lines: list[str]) -> list[dict]:
     return [
         source_to_destination_map(map_name, input_lines)
-        for map_name in _MAP_NAMES
+        for map_name in MAP_NAMES
     ]
 
 def get_seeds(seed_line: str) -> list[int]:
