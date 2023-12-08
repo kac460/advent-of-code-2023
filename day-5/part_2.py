@@ -51,10 +51,6 @@ def get_maps(input_lines: list[str]) -> list[dict]:
         for map_name in MAP_NAMES
     ]
 
-def get_location(seed: int, src_to_dest_maps: list[dict]) -> int:
-    return list(get_locations([seed], src_to_dest_maps))[0]
-
-
 def get_seed_range_end_and_location(
     start_seed: int, 
     upper_inclusive_bound_seed: int, 
@@ -70,7 +66,7 @@ def get_seed_range_end_and_location(
     for src_to_dest_map in src_to_dest_maps:
         # Find which range this belongs to in the map
         for map_src, dest_obj in src_to_dest_map.items():
-            if src >= map_src and src <= map_src + dest_obj.range_length:
+            if src >= map_src and src < map_src + dest_obj.range_length:
                 break
         # Our comments above used dest_dist_from_map_dest_end but this is equal to src_dist_from_map_src_end = (map_src + dest_obj.range_length) - src
         src_dist_from_map_src_end = (map_src + dest_obj.range_length) - src
@@ -94,43 +90,56 @@ def test_get_seed_range_end():
     print(location)
     assert end_seed == 81
     assert location == 82
+    start_seed = 59
+    upper_inclusive_bound_seed = 67
+    end_seed, location = get_seed_range_end_and_location(start_seed, upper_inclusive_bound_seed, maps)
+    print(end_seed)
+    print(location)
+
 test_get_seed_range_end()
 
 _SEED_START_INDEX = 0
 _RANGE_LENGTH_INDEX = 1
 # I.e., those defined in the input, not our "seed ranges" defined in our notes.
 # returns [(start_seed: int, range: int)]
-def get_explicit_seed_ranges(seed_line: str) -> list[tuple[int, int]]:
+def get_input_seed_ranges(seed_line: str) -> list[tuple[int, int]]:
     # return [int(seed) for seed in seed_line.split(':')[1].split()]
     seed_line_nums = [int(num) for num in seed_line.split(':')[1].split()]
     return [
         (seed_line_nums[i], seed_line_nums[i+1])
         for i in range(0, len(seed_line_nums), 2)
     ]
-assert get_explicit_seed_ranges('seeds: 79 14 55 13') == [(79, 14), (55, 13)]
+assert get_input_seed_ranges('seeds: 79 14 55 13') == [(79, 14), (55, 13)]
 
 def main() -> None:
     input_lines = get_input_lines(use_sample=False)
     src_to_dest_maps = get_maps(input_lines)
-    explicit_seed_ranges = get_explicit_seed_ranges(input_lines[0])
-    print(explicit_seed_ranges)
-    candidate_seed = explicit_seed_ranges[0][_SEED_START_INDEX]
-    curr_lowest_location = get_location(candidate_seed, src_to_dest_maps)
-    for explicit_seed_range in explicit_seed_ranges:
-        explicit_inclusive_upper_bound = explicit_seed_range[_SEED_START_INDEX] + explicit_seed_range[_RANGE_LENGTH_INDEX] - 1
-        end_seed_range = get_seed_range_end(explicit_seed_range[_SEED_START_INDEX], explicit_inclusive_upper_bound, src_to_dest_maps)
-        # e.g. if we have (5, 2), we stop at 5 + 2 - 1 = 6
-        while end_seed_range != explicit_inclusive_upper_bound:
-            start_seed_range = end_seed_range + 1
-            print(f'explicit_inclusive_upper_bound: {explicit_inclusive_upper_bound}, start_seed_range: {start_seed_range} end_seed_range: {end_seed_range}')
-            candidate_location = get_location(start_seed_range, src_to_dest_maps)
-            print(f'candidate_location: {candidate_location}')
+    input_seed_ranges = get_input_seed_ranges(input_lines[0])
+    print(input_seed_ranges)
+    # candidate_seed = explicit_seed_ranges[0][_SEED_START_INDEX]
+    # end_seed_range, curr_lowest_location = get_seed_range_end_and_location(candidate_seed, candidate_seed+explicit_seed_ranges[_RANGE_LENGTH_INDEX], src_to_dest_maps)
+    curr_lowest_location = float('inf')
+    for input_seed_range in input_seed_ranges:
+        
+        candidate_seed = input_seed_range[_SEED_START_INDEX]
+        end_of_input_seed_range = input_seed_range[_SEED_START_INDEX] + input_seed_range [_RANGE_LENGTH_INDEX] - 1
+        # the final seed_range_end returned should be end_of_input_seed_range
+        while candidate_seed != end_of_input_seed_range+1:
+            print(f'**Candidate seed: {candidate_seed}, end_of_input_seed_range: {end_of_input_seed_range}')
+            end_of_candidate_seed_range, candidate_location = get_seed_range_end_and_location(
+                start_seed=candidate_seed, 
+                upper_inclusive_bound_seed=end_of_input_seed_range, 
+                src_to_dest_maps=src_to_dest_maps
+            )
+            print(f'end_of_candidate_seed_range: {end_of_candidate_seed_range}, candidate_location: {candidate_location}')
+            print()
             if candidate_location < curr_lowest_location:
                 curr_lowest_location = candidate_location
-            end_seed_range = get_seed_range_end(start_seed_range, explicit_inclusive_upper_bound, src_to_dest_maps)
+                print(f'New curr_lowest_location: {curr_lowest_location}')
+            candidate_seed = end_of_candidate_seed_range + 1
     print(f'Final answer: {curr_lowest_location}')
+            
+
 
 if __name__ == '__main__':
-    # main()
-    pass
-    
+    main()
