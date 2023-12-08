@@ -14,7 +14,7 @@ In the above example, the lowest location number can be obtained from seed numbe
 Consider all of the initial seed numbers listed in the ranges on the first line of the almanac. What is the lowest location number that corresponds to any of the initial seed numbers?
 '''
 
-from part_1 import get_input_lines, get_locations, MAP_NAMES, DestObj
+from part_1 import get_input_lines, MAP_NAMES, DestObj
 
 def source_to_destination_map(map_name: str, input_lines: list[str]) -> dict:
     header_index = input_lines.index(f'{map_name} map:')
@@ -43,7 +43,7 @@ def test_source_to_destination_map():
     src_to_dest_map = source_to_destination_map('light-to-temperature', input_lines)
     import pprint
     pprint.pprint(src_to_dest_map)
-test_source_to_destination_map()
+# test_source_to_destination_map()
 
 def get_maps(input_lines: list[str]) -> list[dict]:
     return [
@@ -96,7 +96,7 @@ def test_get_seed_range_end():
     print(end_seed)
     print(location)
 
-test_get_seed_range_end()
+# test_get_seed_range_end()
 
 _SEED_START_INDEX = 0
 _RANGE_LENGTH_INDEX = 1
@@ -115,7 +115,7 @@ def main() -> None:
     input_lines = get_input_lines(use_sample=False)
     src_to_dest_maps = get_maps(input_lines)
     input_seed_ranges = get_input_seed_ranges(input_lines[0])
-    print(input_seed_ranges)
+    # print(input_seed_ranges)
     # candidate_seed = explicit_seed_ranges[0][_SEED_START_INDEX]
     # end_seed_range, curr_lowest_location = get_seed_range_end_and_location(candidate_seed, candidate_seed+explicit_seed_ranges[_RANGE_LENGTH_INDEX], src_to_dest_maps)
     curr_lowest_location = float('inf')
@@ -125,17 +125,17 @@ def main() -> None:
         end_of_input_seed_range = input_seed_range[_SEED_START_INDEX] + input_seed_range [_RANGE_LENGTH_INDEX] - 1
         # the final seed_range_end returned should be end_of_input_seed_range
         while candidate_seed != end_of_input_seed_range+1:
-            print(f'**Candidate seed: {candidate_seed}, end_of_input_seed_range: {end_of_input_seed_range}')
+            # print(f'**Candidate seed: {candidate_seed}, end_of_input_seed_range: {end_of_input_seed_range}')
             end_of_candidate_seed_range, candidate_location = get_seed_range_end_and_location(
                 start_seed=candidate_seed, 
                 upper_inclusive_bound_seed=end_of_input_seed_range, 
                 src_to_dest_maps=src_to_dest_maps
             )
-            print(f'end_of_candidate_seed_range: {end_of_candidate_seed_range}, candidate_location: {candidate_location}')
-            print()
+            # print(f'end_of_candidate_seed_range: {end_of_candidate_seed_range}, candidate_location: {candidate_location}')
+            # print()
             if candidate_location < curr_lowest_location:
                 curr_lowest_location = candidate_location
-                print(f'New curr_lowest_location: {curr_lowest_location}')
+                # print(f'New curr_lowest_location: {curr_lowest_location}')
             candidate_seed = end_of_candidate_seed_range + 1
     print(f'Final answer: {curr_lowest_location}')
             
