@@ -1,3 +1,7 @@
 For each starting node, can we determine the pattern on which it gets to a Z node?
     E.g., something like "XXA gets to XXZ every 102 moves, XYZ every 300 moves, etc."
 Then, can we compare all the starting nodes' patterns to predict when they will all be on a Z node at the same time?
+
+- You've fully looped once you've gotten to the same node at the same instruction number
+- So for each starting node XXA, we could compute the number instructions to loop back to XXA 
+- Then we can infer for node XXZ that XXA visits in that loop all the counts at which XXA will get us to XXZ (e.g. if loop_size = L, and it gets to XXZ at at instruction I, then every I+kL will get us to XXZ ())
