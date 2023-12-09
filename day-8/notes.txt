@@ -1,0 +1,3 @@
+For each starting node, can we determine the pattern on which it gets to a Z node?
+    E.g., something like "XXA gets to XXZ every 102 moves, XYZ every 300 moves, etc."
+Then, can we compare all the starting nodes' patterns to predict when they will all be on a Z node at the same time?
