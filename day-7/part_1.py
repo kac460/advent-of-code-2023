@@ -37,7 +37,6 @@ Find the rank of every hand in your set. What are the total winnings?
 '''
 from typing import NamedTuple
 from functools import cmp_to_key
-from enum import Enum
 
 class Play(NamedTuple):
     hand: tuple[int, int, int, int, int]
