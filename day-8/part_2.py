@@ -23,11 +23,12 @@ def test_get_starting_locations() -> None:
     assert starting_locations == ['11A', '22A']
 test_get_starting_locations()
 
+# need to modify to have z_positionS_in_loop as a set
 class LoopInfo(NamedTuple):
     size: int
     first_instruction_num: int
     # 0 if first node in loop
-    z_position_in_loop: int
+    z_positions_in_loop: set[int]
 
 def get_loop_info(
     starting_location: str,
@@ -44,33 +45,41 @@ def get_loop_info(
         for i in range(len(instructions))
     }
     instructions_executed = 0
-    loop_counter = None
+    in_loop_index = None
     while True:
         for i in range(len(instructions)):
             # Start of loop discovered:
+            print(curr_location, i, instruction_nums_to_node)
+            if in_loop_index is not None and in_loop_index == loop_size:
+                print('Re-looped')
+                return LoopInfo(
+                    size=loop_size,
+                    first_instruction_num=loop_first_instruction_num,
+                    z_positions_in_loop=z_positions
+                )
             if curr_location in instruction_nums_to_node[i] and loop_first_instruction_num is None:
                 loop_size = instructions_executed - instruction_nums_to_node[i][curr_location]
                 # TODO check if off by 1
                 # in example, we expect loop_first_instruction_num to be 1
                 loop_first_instruction_num = instruction_nums_to_node[i][curr_location]
-                loop_counter = 0
-            if loop_counter is not None and curr_location[-1] == 'Z':
-                # e.g. if the loop starts at Z then it's 0
-                return LoopInfo(
-                    size=loop_size,
-                    first_instruction_num=loop_first_instruction_num,
-                    z_position_in_loop=loop_counter
-                )
-            instruction_nums_to_node[i] = {curr_location: instructions_executed}
+                print('LOOP DISCOVERED', loop_size, loop_first_instruction_num)
+                in_loop_index = 0
+                z_positions = set()
+            if in_loop_index is not None and curr_location[-1] == 'Z':
+                z_positions.add(in_loop_index)
+            instruction_nums_to_node[i][curr_location] = instructions_executed
             curr_location = desert_map[curr_location][instructions[i]]
             instructions_executed += 1
-            if loop_counter is not None:
-                loop_counter += 1
+            if in_loop_index is not None:
+                in_loop_index += 1
 def test_get_loop_info() -> None:
     input_lines = get_input_lines(use_sample=True)
     desert_map = get_map(input_lines)
-    starting_location = '11A'
+    starting_location = '22A'
     instructions = get_instructions(input_lines[0])
+    loop_info = get_loop_info(starting_location, desert_map, instructions)
+    print(f'{starting_location} loop_info: {loop_info}')
+    starting_location = '11A'
     loop_info = get_loop_info(starting_location, desert_map, instructions)
     print(f'{starting_location} loop_info: {loop_info}')
 test_get_loop_info()

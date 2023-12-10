@@ -18,3 +18,5 @@ Then, can we compare all the starting nodes' patterns to predict when they will 
 11A -> 11B -> 11Z
     -> 11B -> 11Z
 size=2, first_instruction_num = 1, z_position_in_loop = 1
+
+22A -> 22B -> 22C -> 22Z -> 22B -> 22C -> 22Z
