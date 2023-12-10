@@ -48,7 +48,6 @@ def get_loop_info(
     in_loop_index = None
     while True:
         for i in range(len(instructions)):
-            # Start of loop discovered:
             # print(curr_location, i, instruction_nums_to_node)
             # This if block needs to be before we add any z_positions
             # To handle the Z node being the start of the loop
