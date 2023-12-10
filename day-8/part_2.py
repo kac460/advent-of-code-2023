@@ -59,8 +59,6 @@ def get_loop_info(
                 )
             if curr_location in instruction_nums_to_node[i] and loop_first_instruction_num is None:
                 loop_size = instructions_executed - instruction_nums_to_node[i][curr_location]
-                # TODO check if off by 1
-                # in example, we expect loop_first_instruction_num to be 1
                 loop_first_instruction_num = instruction_nums_to_node[i][curr_location]
                 print('LOOP DISCOVERED', loop_size, loop_first_instruction_num)
                 in_loop_index = 0
