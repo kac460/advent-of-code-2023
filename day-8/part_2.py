@@ -75,30 +75,6 @@ def test_get_loop_info() -> None:
     print(f'{starting_location} loop_info: {loop_info}')
 test_get_loop_info()
 
-# idea - get loop_size AND the point in the loop at which we get to the Z node
-# AND at what instruction we enter the loop
-# def get_loop_size(
-#     starting_location: str, 
-#     desert_map: DesertMap, 
-#     instructions: list[int]
-# ) -> int: 
-#     curr_location = starting_location
-#     # {N: j} in instruction_nums_to_node[i] 
-#     # if we're at N before executing instructions[i]
-#     # and we've executed j instructions up to this point
-#     instruction_nums_to_node: dict[int, dict[str, int]] = {
-#         i: dict()
-#         for i in range(len(instructions))
-#     }
-#     instructions_executed = 0
-#     while True:
-#         for i in range(len(instructions)):
-#             if curr_location in instruction_nums_to_node[i]:
-#                 return instructions_executed - instruction_nums_to_node[i][curr_location]
-#             instruction_nums_to_node[i] = {curr_location: instructions_executed}
-#             curr_location = desert_map[curr_location][instructions[i]]
-#             instructions_executed += 1
-
 def main() -> None:
     input_lines = get_input_lines(use_sample=False)
     instructions = get_instructions(input_lines[0])
