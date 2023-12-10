@@ -3,5 +3,14 @@ For each starting node, can we determine the pattern on which it gets to a Z nod
 Then, can we compare all the starting nodes' patterns to predict when they will all be on a Z node at the same time?
 
 - You've fully looped once you've gotten to the same node at the same instruction number
+    - I *think* a loop is guaranteed given the finite number of nodes and the looping instructions...maybe
 - So for each starting node XXA, we could compute the number instructions to loop back to XXA 
 - Then we can infer for node XXZ that XXA visits in that loop all the counts at which XXA will get us to XXZ (e.g. if loop_size = L, and it gets to XXZ at at instruction I, then every I+kL will get us to XXZ ())
+    - Note you might get to XXZ at multiple instructions, not just the one I.
+    - Is there something we can do with I % kL ... like check if there's any I such that I % kL is a Z node for every single starting node?
+
+- Let f(N, i) = {
+    1, if from starting node N, we reach some Z node at instruction i
+    0, otherwise
+}
+- Then, the question is, what is the minimum i for which f(N, i)=1 for every node N
