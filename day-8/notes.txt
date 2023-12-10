@@ -20,3 +20,24 @@ Then, can we compare all the starting nodes' patterns to predict when they will 
 size=2, first_instruction_num = 1, z_position_in_loop = 1
 
 22A -> 22B -> 22C -> 22Z -> 22B -> 22C -> 22Z
+
+
+Say we have LoopInfo(
+    size=2,
+    first_instruction_num=3
+    z_positions_in_loop={1}
+)
+Then, we'll get to z at instructions_executed:
+    - 4 = first_instruction_num + z_position
+    - 6 = first_instruction_num + z_position + size
+    - 8 = first_instruction_num + z_position + 2size
+
+So in general, instruction = first_instruction_num + z_position + k*size is a Z node
+
+So, the question is, what is the smallest i s.t. 
+    i = first_instruction_num + z_position + k*size
+for every loop_info?
+
+This is equivalent to, what is the smallest i s.t.
+    (i - first_instruction_num - z_position) % size = 0
+for every loop_info?

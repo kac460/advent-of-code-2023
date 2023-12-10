@@ -87,10 +87,11 @@ def test_get_loop_info() -> None:
     starting_location = '11A'
     loop_info = get_loop_info(starting_location, desert_map, instructions)
     print(f'{starting_location} loop_info: {loop_info}')
+    print('--------------')
 test_get_loop_info()
 
 def main() -> None:
-    input_lines = get_input_lines(use_sample=True)
+    input_lines = get_input_lines(use_sample=False)
     instructions = get_instructions(input_lines[0])
     desert_map = get_map(input_lines)
     starting_locations = get_starting_locations(desert_map)
@@ -99,6 +100,29 @@ def main() -> None:
         for starting_location in starting_locations
     ]
     print(f'Loop infos: {loop_infos}')
+    # i don't think my logic really works in all cases if z_positions_in_loop can have more than 1 element
+    # but in our real input they only have 1 element each
+    i = max(
+        loop_info.first_instruction_num + max(loop_info.z_positions_in_loop)
+        for loop_info in loop_infos
+    )
+    increm = max(
+        loop_info.size
+        for loop_info in loop_infos
+    )
+    while True:
+        for loop_info in loop_infos:
+            at_z_in_this_loop = False
+            for z_position in loop_info.z_positions_in_loop:
+                if (i - loop_info.first_instruction_num - z_position) % loop_info.size == 0:
+                    at_z_in_this_loop = True
+                    break
+            if not at_z_in_this_loop:
+                break
+        if at_z_in_this_loop:
+            print(f'Final answer: {i}')
+            return
+        i += increm
             
 if __name__ == '__main__':
     main()
