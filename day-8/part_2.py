@@ -2,13 +2,16 @@ from part_1 import (
     get_instructions,
     get_map
 )
+from typing import TypeAlias, NamedTuple
+
+DesertMap: TypeAlias = dict[str, tuple[str, str]]
 
 def get_input_lines(use_sample: bool) -> list[str]:
     filename = 'sample_2.txt' if use_sample else 'input.txt'
     with open(f'day-8/{filename}') as f:
         return f.readlines()
 
-def get_starting_locations(desert_map: dict[str, tuple[str, str]]) -> list[str]:
+def get_starting_locations(desert_map: DesertMap) -> list[str]:
     return [
         node for node in desert_map.keys() if node[-1] == 'A'
     ]
@@ -19,6 +22,82 @@ def test_get_starting_locations() -> None:
     starting_locations = get_starting_locations(desert_map)
     assert starting_locations == ['11A', '22A']
 test_get_starting_locations()
+
+class LoopInfo(NamedTuple):
+    size: int
+    first_instruction_num: int
+    # 0 if first node in loop
+    z_position_in_loop: int
+
+def get_loop_info(
+    starting_location: str,
+    desert_map: DesertMap, 
+    instructions: list[int]
+) -> LoopInfo:
+    curr_location = starting_location
+    loop_first_instruction_num = None
+    # {N: j} in instruction_nums_to_node[i] 
+    # if we're at N before executing instructions[i]
+    # and we've executed j instructions up to this point
+    instruction_nums_to_node: dict[int, dict[str, int]] = {
+        i: dict()
+        for i in range(len(instructions))
+    }
+    instructions_executed = 0
+    loop_counter = None
+    while True:
+        for i in range(len(instructions)):
+            # Start of loop discovered:
+            if curr_location in instruction_nums_to_node[i] and loop_first_instruction_num is None:
+                loop_size = instructions_executed - instruction_nums_to_node[i][curr_location]
+                # TODO check if off by 1
+                # in example, we expect loop_first_instruction_num to be 1
+                loop_first_instruction_num = instruction_nums_to_node[i][curr_location]
+                loop_counter = 0
+            if loop_counter is not None and curr_location[-1] == 'Z':
+                # e.g. if the loop starts at Z then it's 0
+                return LoopInfo(
+                    size=loop_size,
+                    first_instruction_num=loop_first_instruction_num,
+                    z_position_in_loop=loop_counter
+                )
+            instruction_nums_to_node[i] = {curr_location: instructions_executed}
+            curr_location = desert_map[curr_location][instructions[i]]
+            instructions_executed += 1
+            if loop_counter is not None:
+                loop_counter += 1
+def test_get_loop_info() -> None:
+    input_lines = get_input_lines(use_sample=True)
+    desert_map = get_map(input_lines)
+    starting_location = '11A'
+    instructions = get_instructions(input_lines[0])
+    loop_info = get_loop_info(starting_location, desert_map, instructions)
+    print(f'{starting_location} loop_info: {loop_info}')
+test_get_loop_info()
+
+# idea - get loop_size AND the point in the loop at which we get to the Z node
+# AND at what instruction we enter the loop
+# def get_loop_size(
+#     starting_location: str, 
+#     desert_map: DesertMap, 
+#     instructions: list[int]
+# ) -> int: 
+#     curr_location = starting_location
+#     # {N: j} in instruction_nums_to_node[i] 
+#     # if we're at N before executing instructions[i]
+#     # and we've executed j instructions up to this point
+#     instruction_nums_to_node: dict[int, dict[str, int]] = {
+#         i: dict()
+#         for i in range(len(instructions))
+#     }
+#     instructions_executed = 0
+#     while True:
+#         for i in range(len(instructions)):
+#             if curr_location in instruction_nums_to_node[i]:
+#                 return instructions_executed - instruction_nums_to_node[i][curr_location]
+#             instruction_nums_to_node[i] = {curr_location: instructions_executed}
+#             curr_location = desert_map[curr_location][instructions[i]]
+#             instructions_executed += 1
 
 def main() -> None:
     input_lines = get_input_lines(use_sample=False)
@@ -40,5 +119,6 @@ def main() -> None:
                 return
             
 if __name__ == '__main__':
-    main()
+    # main()
+    pass
     

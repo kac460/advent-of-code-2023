@@ -14,3 +14,7 @@ Then, can we compare all the starting nodes' patterns to predict when they will 
     0, otherwise
 }
 - Then, the question is, what is the minimum i for which f(N, i)=1 for every node N
+
+11A -> 11B -> 11Z
+    -> 11B -> 11Z
+size=2, first_instruction_num = 1, z_position_in_loop = 1
