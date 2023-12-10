@@ -90,25 +90,16 @@ def test_get_loop_info() -> None:
 test_get_loop_info()
 
 def main() -> None:
-    input_lines = get_input_lines(use_sample=False)
+    input_lines = get_input_lines(use_sample=True)
     instructions = get_instructions(input_lines[0])
     desert_map = get_map(input_lines)
-    curr_nodes = get_starting_locations(desert_map)
-    cnt = 0
-    while True:
-        for instruction in instructions:
-            some_non_z_node = False
-            cnt += 1
-            for i in range(len(curr_nodes)):
-                dest = desert_map[curr_nodes[i]][instruction]
-                curr_nodes[i] = dest
-                if dest[-1] != 'Z':
-                    some_non_z_node = True
-            if not some_non_z_node:
-                print(f'Final answer: {cnt}')
-                return
+    starting_locations = get_starting_locations(desert_map)
+    loop_infos = [
+        get_loop_info(starting_location, desert_map, instructions)
+        for starting_location in starting_locations
+    ]
+    print(f'Loop infos: {loop_infos}')
             
 if __name__ == '__main__':
-    # main()
-    pass
+    main()
     
