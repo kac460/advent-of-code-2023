@@ -112,7 +112,7 @@ Figure out whether you have time to search for the nest by calculating the area 
        |||    
                *X*X*X*
 '''
-
+# TODO - wait but what about spaces between pipes within the pipe row?
 # Directly top/right/left/bottom of space would be another space, not a pipe
 # Top right of space (r, c) is (r-1, c)
 # Top left of space (r, c) is (r-1, c-1)
