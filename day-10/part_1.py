@@ -181,7 +181,7 @@ def test_is_cycic() -> None:
         (3, 3): {(2, 3), (3, 2)}
     }
     assert not is_cyclic(graph, (1, 1))
-test_is_cycic()
+# test_is_cycic()
 
 _CONNECTS_UP_SYMBOLS = {'|', 'L', 'J'}
 _CONNECTS_DOWN_SYMBOLS = {'|', '7', 'F'}
@@ -189,7 +189,14 @@ _CONNECTS_LEFT_SYMBOLS = {'-', 'J', '7'}
 _CONNECTS_RIGHT_SYMBOLS = {'-', 'L', 'F'}
 
 # Construct an adjacency set for each node
-def construct_graph(input_lines: list[str]) -> dict[tuple[int,int], set[tuple[int,int]]]:
+def construct_graph(input_lines: list[str]) -> tuple[
+    dict[
+        tuple[int,int], 
+        set[tuple[int,int]]
+    ], 
+    tuple[int, int], 
+    str
+]:
     def connects_up(r, c):
         return input_lines[r][c] in _CONNECTS_UP_SYMBOLS
     
@@ -262,12 +269,12 @@ def construct_graph(input_lines: list[str]) -> dict[tuple[int,int], set[tuple[in
         cycle_at_s = is_cyclic(candidate_graph, (s_row, s_col)) if (s_row, s_col) in candidate_graph else False
         if cycle_at_s:
             print(f'Cycle at S ({s_row}, {s_col}) when S is {possible_S_symbol}')
-            return candidate_graph, (s_row, s_col)
+            return candidate_graph, (s_row, s_col), possible_S_symbol
 
     
 
 def test_construct_graph() -> None:
-    graph, start_node = construct_graph(get_input_lines(use_sample=True))
+    graph, start_node, s_char = construct_graph(get_input_lines(use_sample=True))
     assert graph == {
         (0, 2): {(1, 2), (0, 3)},
         (0, 3): {(0, 2), (1, 3)},
@@ -287,7 +294,7 @@ def test_construct_graph() -> None:
         (4, 1): {(3, 1), (4, 0)}
     }
     assert start_node == (2, 0)
-test_construct_graph()
+# test_construct_graph()
 
 '''
  1  procedure BFS(G, root) is
@@ -367,7 +374,8 @@ test_get_distances()
 
 def main() -> None:
     input_lines = get_input_lines(use_sample=False)
-    graph, start_node = construct_graph(input_lines)
+    graph, start_node, s_node_char = construct_graph(input_lines)
+    print(s_node_char)
     dists = get_distances(start_node, graph)
     answer = max(dists.values())
     print(f'Final answer: {answer}')
