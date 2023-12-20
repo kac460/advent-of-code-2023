@@ -175,48 +175,13 @@ def space_to_tiles(row: int, col: int) -> tuple[
     tuple[int, int], 
     tuple[int, int]
 ]:
-    # Top right of space (r, c) is (r-1, c)
-    # Top left of space (r, c) is (r-1, c-1)
-    # Bottom right of space (r, c) is (r, c)
-    # Bottom left of space (r, c) is (r, c-1)
     return (
         (row-1, col),
         (row-1, col-1),
         (row, col),
         (row, col-1)
     )
-'''
- 1  procedure BFS(G, root) is
- 2      let Q be a queue
- 3      label root as explored
- 4      Q.enqueue(root)
- 5      while Q is not empty do
- 6          v := Q.dequeue()
- 7          if v is the goal then
- 8              return v
- 9          for all edges from v to w in G.adjacentEdges(v) do
-10              if w is not labeled as explored then
-11                  label w as explored
-12                  w.parent := v
-13                  Q.enqueue(w)
-def get_distances(
-    s: tuple[int, int], 
-    graph: dict[tuple[int,int], set[tuple[int,int]]]
-) -> dict[tuple[int, int], int]:
-    dist = 0
-    dists = dict()
-    parents = dict()
-    queue = deque([s])
-    while len(queue) > 0:
-        v = queue.popleft()
-        dists[v] = dists[parents[v]] + 1 if v != s else 0
-        for neighbor in graph[v]:
-            if not dists.get(neighbor):
-                parents[neighbor] = v
-                queue.append(neighbor)
-        dist += 1
-    return dists
-'''
+
 def update_escapable_tiles(
     source_row: int, 
     source_col: int,
@@ -228,17 +193,12 @@ def update_escapable_tiles(
 ) -> None:
     spaces = tile_to_spaces(source_row, source_col)
     escapable = False
-    # print(f'Source: {(source_row, source_col)}')
-    # print(space_graph)
     for space in spaces:
         visited = set([space])
         queue = deque([space])
-        # print(f'Checking {space}')
         while len(queue) > 0:
-            # print(len(visited))
             v = queue.popleft()
             visited.add(v)
-            # print(f'v: {v}')
             if v[_ROW_INDEX] in (-1, grid_num_rows) or v[_COL_INDEX] in (-1, grid_num_cols):
                 escapable = True
                 continue
@@ -283,7 +243,6 @@ def main() -> None:
     )
     for r in range(len(escape_grid)):
         for c in range(len(escape_grid[0])):
-            print(f'{(r, c)}, {escape_grid[r][c]}')
             if (r, c) not in s_loop and escape_grid[r][c] not in ('I', 'O'):
                 update_escapable_tiles(
                     r,
@@ -294,8 +253,6 @@ def main() -> None:
                     escape_grid,
                     s_loop
                 )
-            # else:
-            #     print(f'{(r, c)} is in the loop {input_lines[r][c]}')
                 
     count = 0
     for line in escape_grid:
