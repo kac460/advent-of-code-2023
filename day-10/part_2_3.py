@@ -143,8 +143,6 @@ def construct_space_graph(pipe_graph: dict[tuple[int, int], set[tuple[int, int]]
         bottom_right = (r, c)
         bottom_left = (r, c-1)
 
-        # TODO - decide how to deal with bounds
-        # Maybe just say if we can reach a node that is out of bounds, then it's escapable?
         if top_right not in pipe_neighbors(bottom_right):
             space_graph[(r, c)].add((r, c+1))
 
@@ -158,26 +156,6 @@ def construct_space_graph(pipe_graph: dict[tuple[int, int], set[tuple[int, int]]
             space_graph[(r, c)].add((r+1, c))
     return space_graph
 
-
-# Top right of space (r, c) is (r-1, c)
-# Top left of space (r, c) is (r-1, c-1)
-# Bottom right of space (r, c) is (r, c)
-# Bottom left of space (r, c) is (r, c-1)
-
-'''
-               *X*X*X*
----    ---     
-...            *X*X*X*
----    ...     
-|||            *X*X*X*
-|||    ---     
-               *X*X*X*
-       |||     
-               *XVXVX*
-       |||    
-               *X*X*X*
-'''
-
 def tile_to_spaces(row: int, col: int) -> tuple[
     tuple[int, int], 
     tuple[int, int], 
@@ -189,6 +167,23 @@ def tile_to_spaces(row: int, col: int) -> tuple[
         (row, col+1),
         (row+1, col),
         (row+1, col+1)
+    )
+
+def space_to_tiles(row: int, col: int) -> tuple[
+    tuple[int, int], 
+    tuple[int, int], 
+    tuple[int, int], 
+    tuple[int, int]
+]:
+    # Top right of space (r, c) is (r-1, c)
+    # Top left of space (r, c) is (r-1, c-1)
+    # Bottom right of space (r, c) is (r, c)
+    # Bottom left of space (r, c) is (r, c-1)
+    return (
+        (row-1, col),
+        (row-1, col-1),
+        (row, col),
+        (row, col-1)
     )
 '''
  1  procedure BFS(G, root) is
@@ -236,94 +231,71 @@ def update_escapable_tiles(
     # print(f'Source: {(source_row, source_col)}')
     # print(space_graph)
     for space in spaces:
-        visited = set()
+        visited = set([space])
         queue = deque([space])
         # print(f'Checking {space}')
         while len(queue) > 0:
             # print(len(visited))
             v = queue.popleft()
-            if v in visited:
-                # print(f'somehow visiting the same node twice {v}')
-                continue
             visited.add(v)
             # print(f'v: {v}')
             if v[_ROW_INDEX] in (-1, grid_num_rows) or v[_COL_INDEX] in (-1, grid_num_cols):
+                escapable = True
                 continue
             for neighbor in space_graph[v]:
-                if (
-                    neighbor[0] in (0, grid_num_rows)
-                    or neighbor[1] in (0, grid_num_cols)
-                ):
-                    escapable = True
                 if neighbor not in visited:
+                    visited.add(neighbor)
                     queue.append(neighbor)
+    for space_r, space_c in visited:
+        for tile_r, tile_c in space_to_tiles(space_r, space_c):
+            if (0 <= tile_r < len(escape_grid)) and (0 <= tile_c < len(escape_grid[0])) and (tile_r, tile_c) not in s_loop:
+                escape_grid[tile_r][tile_c] = 'O' if escapable else 'I'
 
-    for r, c in visited:
-        if (0 <= r < len(escape_grid)) and (0 <= c < len(escape_grid[0])) and (r, c) not in s_loop:
-            escape_grid[r][c] = 'O' if escapable else 'I'
-    print('X')
+
+
+def get_reachable_nodes(source: tuple[int, int], graph: dict[tuple[int, int], set[tuple[int, int]]]) -> set[tuple[int, int]]:
+    queue = deque([source])
+    visited = set([source]) 
+    while len(queue) > 0:
+        v = queue.popleft()
+        for neighbor in graph[v]:
+            if neighbor not in visited:
+                visited.add(neighbor)
+                queue.append(neighbor)
+    return visited
 
 _ROW_INDEX = 0
 _COL_INDEX = 1
-def node_in_loop_bounds(node: tuple[int, int], loop: set[tuple[int, int]]) -> bool:
-    max_r = max(v[_ROW_INDEX] for v in loop)
-    max_c = max(v[_COL_INDEX] for v in loop)
-    min_r = min(v[_ROW_INDEX] for v in loop)
-    min_c = min(v[_COL_INDEX] for v in loop)
-    node_r, node_c = node
-    return (min_r < node_r < max_r) and (min_c < node_c < max_c)
-
-
-def get_cycle_if_exists(
-    g: dict[tuple[int,int], set[tuple[int,int]]], 
-    source: tuple[int, int],
-) -> set[tuple[int,int]] | None:
-    v = source
-    stack = [v]
-    discovered = set()
-    parent = {
-        v: None
-    }
-    while len(stack) > 0:
-        v = stack.pop()
-        if v not in discovered:
-            discovered.add(v)
-            for neighbor in g.get(v, set()):
-                # back edge (apparently)
-                if neighbor in discovered and parent[v] != neighbor:
-                    # I think given the constraints of the pipes
-                    # the loop is always just everything discovered
-                    return discovered
-                stack.append(neighbor)
-                parent[neighbor] = v
-    return None
 
 
 def main() -> None:
-    input_lines = get_input_lines(use_sample=True)
+    input_lines = get_input_lines(use_sample=False)
     escape_grid = [
         [input_line[c] for c in range(len(input_line))]
         for input_line in input_lines
     ]
     pipe_graph, start_node, s_node_char = construct_graph(input_lines)
-    s_loop = get_cycle_if_exists(pipe_graph, start_node)
+    s_loop = get_reachable_nodes(start_node, pipe_graph)
     space_graph = construct_space_graph(
         pipe_graph,
         input_grid_rows=len(input_lines),
         input_grid_cols=len(input_lines[0])
     )
-    for r in range(len(input_lines)):
-        for c in range(len(input_lines[0])):
-            if (r, c) not in s_loop and node_in_loop_bounds((r, c), s_loop) and escape_grid[r][c] not in ('I', 'O'):
+    for r in range(len(escape_grid)):
+        for c in range(len(escape_grid[0])):
+            print(f'{(r, c)}, {escape_grid[r][c]}')
+            if (r, c) not in s_loop and escape_grid[r][c] not in ('I', 'O'):
                 update_escapable_tiles(
                     r,
                     c,
-                    len(input_lines),
-                    len(input_lines[0]),
+                    len(escape_grid),
+                    len(escape_grid[0]),
                     space_graph,
                     escape_grid,
                     s_loop
                 )
+            # else:
+            #     print(f'{(r, c)} is in the loop {input_lines[r][c]}')
                 
     count = 0
     for line in escape_grid:

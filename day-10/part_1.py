@@ -216,7 +216,11 @@ def construct_graph(input_lines: list[str]) -> tuple[
             g[node].add(neighbor)
     
     def add_above_neighbor(g, r, c):
+        if r == c == 139:
+            print('maybe adding 139 above neighbor')
         if r - 1 >= 0 and connects_down(r-1, c):
+            if r == c == 139:
+                print('ADDING 139 ABOVE NEIGHBOR')
             add_neighbor(g,(r, c), (r-1, c))
 
     def add_below_neighbor(g, r, c):
@@ -228,7 +232,11 @@ def construct_graph(input_lines: list[str]) -> tuple[
            add_neighbor(g,(r, c), (r, c-1))
 
     def add_right_neighbor(g, r, c):
+        if r == c == 139:
+            print('maybe adding 139 right neighbor')
         if c + 1 < len(input_lines[0]) and connects_left(r, c + 1):
+            if r == c == 139:
+                print('ADDING 139 RIGHT NEIGHBOR')
             add_neighbor(g,(r, c), (r, c+1))
 
     s_row = None
@@ -253,6 +261,8 @@ def construct_graph(input_lines: list[str]) -> tuple[
         for row in range(len(input_lines)):
             for col in range(len(input_lines[row])):
                 symb = input_lines[row][col]
+                if row == col == 139:
+                    print(f'139, 139 {symb}')
                 if symb in _CONNECTS_UP_SYMBOLS:
                     add_above_neighbor(candidate_graph, row, col)
                 if symb in _CONNECTS_DOWN_SYMBOLS:
