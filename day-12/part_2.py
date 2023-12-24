@@ -110,8 +110,9 @@ def part_2_num_arrangements(input_line: str) -> int:
             # Short-circuit if all the arrangements used the '?' as a '#':
             if end_of_copy_joiner_filtered_part_1_num_arrangements == 0:
                 end_of_copy_joiner_ans = 0
-            end_of_copy_joiner_expanded_arrangements = get_valid_arrangements(f'{records}? {group_sizes}')
-            end_of_copy_joiner_ans = end_of_copy_joiner_filtered_part_1_num_arrangements * (len(end_of_copy_joiner_expanded_arrangements) ** 4)
+            else:
+                end_of_copy_joiner_expanded_arrangements = get_valid_arrangements(f'{records}? {group_sizes}')
+                end_of_copy_joiner_ans = end_of_copy_joiner_filtered_part_1_num_arrangements * (len(end_of_copy_joiner_expanded_arrangements) ** 4)
     
     if records[-1] == '#':
         start_of_copy_joiner_ans = 0
@@ -127,8 +128,9 @@ def part_2_num_arrangements(input_line: str) -> int:
             # Short-circuit if all the arrangements used the '?' as a '#':
             if start_of_copy_joiner_filtered_part_1_num_arrangements == 0:
                 start_of_copy_joiner_ans = 0
-            start_of_copy_joiner_expanded_arrangements = get_valid_arrangements(f'?{records} {group_sizes}')
-            start_of_copy_joiner_ans = start_of_copy_joiner_filtered_part_1_num_arrangements * (len(start_of_copy_joiner_expanded_arrangements) ** 4)
+            else:
+                start_of_copy_joiner_expanded_arrangements = get_valid_arrangements(f'?{records} {group_sizes}')
+                start_of_copy_joiner_ans = start_of_copy_joiner_filtered_part_1_num_arrangements * (len(start_of_copy_joiner_expanded_arrangements) ** 4)
     
     return max(undamaged_joiner_ans, end_of_copy_joiner_ans, start_of_copy_joiner_ans)
 
@@ -141,7 +143,7 @@ def test_part_2_num_arrangements() -> None:
 # test_part_2_num_arrangements()
 
 def main() -> None:
-    input_lines = get_input_lines(use_sample=False)
+    input_lines = get_input_lines(use_sample=True)
     answer = sum(
         part_2_num_arrangements(line)
         for line in input_lines
