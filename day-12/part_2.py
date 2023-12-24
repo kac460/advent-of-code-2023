@@ -99,7 +99,7 @@ def part_2_num_arrangements(input_line: str) -> int:
     if records[0] == '#':
         end_of_copy_joiner_ans = 0
     else:
-        if records[-1] == '.':
+        if records[0] == '.':
             end_of_copy_joiner_expanded_arrangements = get_valid_arrangements(f'{records}? {group_sizes}')
             end_of_copy_joiner_ans = len(part_1_arrangements) * (len(end_of_copy_joiner_expanded_arrangements) ** 4)
         else:  # '?'
@@ -116,7 +116,7 @@ def part_2_num_arrangements(input_line: str) -> int:
     if records[-1] == '#':
         start_of_copy_joiner_ans = 0
     else:
-        if records[0] == '.':
+        if records[-1] == '.':
             start_of_copy_joiner_expanded_arrangements = get_valid_arrangements(f'?{records} {group_sizes}')
             start_of_copy_joiner_ans = len(part_1_arrangements) * (len(start_of_copy_joiner_expanded_arrangements) ** 4)
         else:
@@ -138,7 +138,7 @@ def test_part_2_num_arrangements() -> None:
         print(f'{line} - {part_2_num_arrangements(line)} arrangements')
         # print(transform_line(line))
         # print('==============')
-test_part_2_num_arrangements()
+# test_part_2_num_arrangements()
 
 def main() -> None:
     input_lines = get_input_lines(use_sample=False)
