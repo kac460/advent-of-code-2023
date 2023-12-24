@@ -81,6 +81,7 @@ def part_2_num_arrangements(input_line: str) -> int:
     # TODO - flesh out this idea...
     if ans1 == part_1_num_arrangements:
         # Can't actually use
+        # But shouldn't the space be fixed to an actual symbol rather than deleted?
         expanded_line_2 = input_line
     else:
         expanded_line_2 = f'{records}? {group_sizes}'
