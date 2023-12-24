@@ -49,7 +49,7 @@ def test_transform_line() -> None:
     print(f'?{line}')
     print(num_arrangements(f'?{line}'))
     print(transform_line(line))
-test_transform_line()
+# test_transform_line()
 
 # def num_arrangements(records: str, group_sizes: list[int]) -> int:
 #     if len(group_sizes) == 0:
@@ -69,13 +69,36 @@ test_transform_line()
 def part_2_num_arrangements(input_line: str) -> int:
     part_1_num_arrangements = num_arrangements(input_line)
     records, group_sizes = input_line.split()
-    expanded_line = f'?{records} {group_sizes}'
-    expanded_line_num_arrangements = num_arrangements(expanded_line)
-    return part_1_num_arrangements * (expanded_line_num_arrangements ** 4)
+    # Idea: for ans1, ans2, see if we're making the smaller copy invalid when # is a ?
+
+    # Give the extra ? to the 2nd copy:
+    # => first copy is just the original
+    expanded_line_1 = f'?{records} {group_sizes}'
+    expanded_line_1_num_arrangements = num_arrangements(expanded_line_1)
+    ans1 = part_1_num_arrangements * (expanded_line_1_num_arrangements ** 4)
+    # Give the extra ? to the 1st copy
+    # => final copy is just the original
+    # TODO - flesh out this idea...
+    if ans1 == part_1_num_arrangements:
+        # Can't actually use
+        expanded_line_2 = input_line
+    else:
+        expanded_line_2 = f'{records}? {group_sizes}'
+    expanded_line_2_num_arrangements = num_arrangements(expanded_line_2)
+    ans2 = (expanded_line_2_num_arrangements ** 4) * part_1_num_arrangements
+    # if ans2 == part_1_num_arrangements:
+    #     ans1 = 0
+    # if ans1 == part_1_num_arrangements:
+    #     ans2 = 0
+    return max(ans1, ans2)
 
 
 def test_part_2_num_arrangements() -> None:
-    print(part_2_num_arrangements('.??..??...?##. 1,1,3'))
+    input_lines = get_input_lines(use_sample=True)
+    for line in input_lines:
+        print(f'{line} - {part_2_num_arrangements(line)} arrangements')
+        # print(transform_line(line))
+        # print('==============')
 test_part_2_num_arrangements()
 
 def main() -> None:
