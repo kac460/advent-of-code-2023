@@ -27,7 +27,7 @@ After unfolding, adding all of the possible arrangement counts together produces
 Unfold your condition records; what is the new sum of possible arrangement counts?
 '''
 
-from part_1 import get_input_lines, num_arrangements
+from part_1 import get_input_lines, is_valid_arrangement, powerset
 
 def transform_line(line: str) -> str:
     records, sizes = line.split()
@@ -39,35 +39,24 @@ def transform_line(line: str) -> str:
     return f'{new_records} {new_sizes}'
 
 
-def test_transform_line() -> None:
-    line = '.# 1'
-    assert transform_line(line) == '.#?.#?.#?.#?.# 1,1,1,1,1'
-    line = '????.#...#... 4,1,1'
-    print(line)
-    print(transform_line(line))
-    line = '.??..??...?##. 1,1,3'
-    print(f'?{line}')
-    print(num_arrangements(f'?{line}'))
-    print(transform_line(line))
-# test_transform_line()
-
-# def num_arrangements(records: str, group_sizes: list[int]) -> int:
-#     if len(group_sizes) == 0:
-#         return 1
-#     i = 0
-#     while records[i] != '?':
-#         if records[i] == '#':
-#             group_sizes[0] -= 1
-#             if group_sizes[0] == 0:
-#                 group_sizes.pop(0)
-#         i += 1
-#         if i == len(records):
-#             return 1
-#     # Case 1: make records[i] '#'
-    
+def get_valid_arrangements(line: str) -> list[set[int]]:
+    records, group_size_part = line.split()
+    group_sizes = [int(group_size) for group_size in group_size_part.split(',')]
+    unknown_indices = [i for i, char in enumerate(records) if char == '?']
+    max_num_assignments = sum(group_sizes)
+    all_subsets = powerset(unknown_indices)
+    return [
+        set(possible_assignment)
+        for possible_assignment in all_subsets
+        if len(possible_assignment) <= max_num_assignments and is_valid_arrangement(
+            records,
+            group_sizes,
+            set(possible_assignment)
+        )
+    ]
 
 def part_2_num_arrangements(input_line: str) -> int:
-    part_1_num_arrangements = num_arrangements(input_line)
+    part_1_arrangements = get_valid_arrangements(input_line)
     records, group_sizes = input_line.split()
     # Two decisions:
     #   1) Do we:
@@ -97,17 +86,51 @@ def part_2_num_arrangements(input_line: str) -> int:
     #   So in total we have 3 possibilities:
     #      1) Treat the ? joiner as a '.' => part_1_num_arrangements ** 5
     #      2) Treat the ? joiner as a '#' at the end of a copy
-    #           => Filter out part_1 arrangements where the final char is damaged
-    #           => filtered_part_1_arrangements * (expanded_arrangements ** 4)
-    #      3) Treat the ? joiner as a '#' at the start of a copy
     #           => Filter out part_1 arrangements where the first char is damaged
     #           => filtered_part_1_arrangements * (expanded_arrangements ** 4)
+    #      3) Treat the ? joiner as a '#' at the start of a copy
+    #           => Filter out part_1 arrangements where the final char is damaged
+    #           => filtered_part_1_arrangements * (expanded_arrangements ** 4)
     #   Return the max of the above
-    # TODO: rather than num_arrangements, do get_valid_arrangements
     # Not sure if the above is double-counting things...
     #   We could instead some kind of set.union of all arrangements from the above 3?
-    
+    undamaged_joiner_ans = len(part_1_arrangements) ** 5
 
+    if records[0] == '#':
+        end_of_copy_joiner_ans = 0
+    else:
+        if records[-1] == '.':
+            end_of_copy_joiner_expanded_arrangements = get_valid_arrangements(f'{records}? {group_sizes}')
+            end_of_copy_joiner_ans = len(part_1_arrangements) * (len(end_of_copy_joiner_expanded_arrangements) ** 4)
+        else:  # '?'
+            end_of_copy_joiner_filtered_part_1_num_arrangements = sum(
+                1 for arrangement in part_1_arrangements
+                if 0 not in arrangement
+            )
+            # Short-circuit if all the arrangements used the '?' as a '#':
+            if end_of_copy_joiner_filtered_part_1_num_arrangements == 0:
+                end_of_copy_joiner_ans = 0
+            end_of_copy_joiner_expanded_arrangements = get_valid_arrangements(f'{records}? {group_sizes}')
+            end_of_copy_joiner_ans = end_of_copy_joiner_filtered_part_1_num_arrangements * (len(end_of_copy_joiner_expanded_arrangements) ** 4)
+    
+    if records[-1] == '#':
+        start_of_copy_joiner_ans = 0
+    else:
+        if records[0] == '.':
+            start_of_copy_joiner_expanded_arrangements = get_valid_arrangements(f'?{records} {group_sizes}')
+            start_of_copy_joiner_ans = len(part_1_arrangements) * (len(start_of_copy_joiner_expanded_arrangements) ** 4)
+        else:
+            start_of_copy_joiner_filtered_part_1_num_arrangements = sum(
+                1 for arrangement in part_1_arrangements
+                if (len(records) - 1) not in arrangement
+            )
+            # Short-circuit if all the arrangements used the '?' as a '#':
+            if start_of_copy_joiner_filtered_part_1_num_arrangements == 0:
+                start_of_copy_joiner_ans = 0
+            start_of_copy_joiner_expanded_arrangements = get_valid_arrangements(f'?{records} {group_sizes}')
+            start_of_copy_joiner_ans = start_of_copy_joiner_filtered_part_1_num_arrangements * (len(start_of_copy_joiner_expanded_arrangements) ** 4)
+    
+    return max(undamaged_joiner_ans, end_of_copy_joiner_ans, start_of_copy_joiner_ans)
 
 def test_part_2_num_arrangements() -> None:
     input_lines = get_input_lines(use_sample=True)
@@ -118,20 +141,13 @@ def test_part_2_num_arrangements() -> None:
 test_part_2_num_arrangements()
 
 def main() -> None:
-    input_lines = get_input_lines(use_sample=True)
-    # transformed_lines = [
-    #     transform_line(line) for line in input_lines
-    # ]
-    answer = 0
-    for input_line in input_lines:
-        input_line_num_arrangements = num_arrangements(input_line)
-        records, group_sizes = input_line.split()
-        expanded_line = f'?{records} {group_sizes}'
-        expanded_line_num_arrangements = num_arrangements(expanded_line)
-        total_line_arrangements = input_line_num_arrangements * (expanded_line_num_arrangements ** 4)
-        answer += total_line_arrangements
+    input_lines = get_input_lines(use_sample=False)
+    answer = sum(
+        part_2_num_arrangements(line)
+        for line in input_lines
+    )
     print(f'FINAL ANSWER: {answer}')
 
         
-# if __name__ == '__main__':
-#     main()
+if __name__ == '__main__':
+    main()
