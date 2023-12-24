@@ -69,29 +69,44 @@ def test_transform_line() -> None:
 def part_2_num_arrangements(input_line: str) -> int:
     part_1_num_arrangements = num_arrangements(input_line)
     records, group_sizes = input_line.split()
-    # Idea: for ans1, ans2, see if we're making the smaller copy invalid when # is a ?
-
-    # Give the extra ? to the 2nd copy:
-    # => first copy is just the original
-    expanded_line_1 = f'?{records} {group_sizes}'
-    expanded_line_1_num_arrangements = num_arrangements(expanded_line_1)
-    ans1 = part_1_num_arrangements * (expanded_line_1_num_arrangements ** 4)
-    # Give the extra ? to the 1st copy
-    # => final copy is just the original
-    # TODO - flesh out this idea...
-    if ans1 == part_1_num_arrangements:
-        # Can't actually use
-        # But shouldn't the space be fixed to an actual symbol rather than deleted?
-        expanded_line_2 = input_line
-    else:
-        expanded_line_2 = f'{records}? {group_sizes}'
-    expanded_line_2_num_arrangements = num_arrangements(expanded_line_2)
-    ans2 = (expanded_line_2_num_arrangements ** 4) * part_1_num_arrangements
-    # if ans2 == part_1_num_arrangements:
-    #     ans1 = 0
-    # if ans1 == part_1_num_arrangements:
-    #     ans2 = 0
-    return max(ans1, ans2)
+    # Two decisions:
+    #   1) Do we:
+    #       a) count the ? joiner as the end of a copy
+    #           4 copies like '<original_record>?'
+    #           1 copy like '<original_record>'
+    #       b) count the ? joiner as the start of a copy
+    #           4 copies like '?<original_record>?'
+    #           1 copy like '<original_record>'
+    #   2) Do we:
+    #       a) make the ? joiner a '#'
+    #           => could invalidate the adjacent copy
+    #               (if ? is end of copy, then we might invalidate the next copy)
+    #               (if ? is start of copy, then we might invalidate the prev copy)
+    #           Q: what are the circumstances in which we invalidate the adj copy?
+    #               WLOG, say we chose ? as end of copy.
+    #               Then each of the prev copy's arrangements is invalidated iff:
+    #                   The final char is damaged
+    #                   (i.e., either '#', or '?' chosen in that arrangement as a '#')
+    #               (the opposite to the above applies if we chose ? as start of copy)
+    #       b) make the ? joiner a '.'
+    #           (never invalidates anything)
+    #           (actually, in this case, the "expanded" records have exactly  
+    #            same arrangements as the unexpanded, part 1 copy)
+    #           (notice if this is the best decision for one copy, it is such for all copies)
+    #               (as they all have the same char next to the adjacent copy's ? joiner)
+    #   So in total we have 3 possibilities:
+    #      1) Treat the ? joiner as a '.' => part_1_num_arrangements ** 5
+    #      2) Treat the ? joiner as a '#' at the end of a copy
+    #           => Filter out part_1 arrangements where the final char is damaged
+    #           => filtered_part_1_arrangements * (expanded_arrangements ** 4)
+    #      3) Treat the ? joiner as a '#' at the start of a copy
+    #           => Filter out part_1 arrangements where the first char is damaged
+    #           => filtered_part_1_arrangements * (expanded_arrangements ** 4)
+    #   Return the max of the above
+    # TODO: rather than num_arrangements, do get_valid_arrangements
+    # Not sure if the above is double-counting things...
+    #   We could instead some kind of set.union of all arrangements from the above 3?
+    
 
 
 def test_part_2_num_arrangements() -> None:
